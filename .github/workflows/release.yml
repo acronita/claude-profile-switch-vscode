@@ -59,9 +59,8 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Package VSIX
-        run: |
-          npm run package
-          mv claude-profile-switch.vsix "claude-profile-switch-${{ steps.version.outputs.version }}.vsix"
+        # vsce names the output <name>-<version>.vsix, matching the asset names below.
+        run: npm run package
 
       - name: Checksum
         run: |

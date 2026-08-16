@@ -55,11 +55,26 @@ npm ci --ignore-scripts
 # Lint, type-check, unit-test, and audit in one go
 npm run verify
 
-# Produce claude-profile-switch.vsix
+# Produce claude-profile-switch-<version>.vsix
 npm run package
 
-# Install it into VS Code
-code --install-extension claude-profile-switch.vsix
+# Install it into VS Code (adjust the version to match what was built)
+code --install-extension claude-profile-switch-0.1.0.vsix
+```
+
+The filename always carries the version, so check what `npm run package` printed
+if the command above says `ENOENT`.
+
+### Or install a published build
+
+Every [release](https://github.com/is-cout/claude-profile-switch-vscode/releases)
+carries a VSIX built by CI from the tagged commit, plus a `.sha256` file. To
+verify a download before installing it:
+
+```powershell
+Get-FileHash claude-profile-switch-0.1.0.vsix -Algorithm SHA256
+# compare against the .sha256 published alongside it
+code --install-extension claude-profile-switch-0.1.0.vsix
 ```
 
 Then reload VS Code. A **Claude Profiles** icon appears in the Activity Bar.
@@ -72,7 +87,7 @@ To try it without installing, open the folder in VS Code and press <kbd>F5</kbd>
 git pull
 npm ci --ignore-scripts
 npm run package
-code --install-extension claude-profile-switch.vsix --force
+code --install-extension claude-profile-switch-0.1.0.vsix --force
 ```
 
 Your saved profiles live in the OS keychain, not in the extension, so they survive reinstalls.

@@ -236,7 +236,7 @@
     "audit": "npm audit --audit-level=low",
     "verify:no-runtime-deps": "node scripts/verify-no-runtime-deps.js",
     "verify": "npm run verify:no-runtime-deps && npm run lint && npm run check-types && npm run test:unit && npm run audit",
-    "package": "npm run verify:no-runtime-deps && vsce package --out claude-profile-switch.vsix"
+    "package": "npm run verify:no-runtime-deps && vsce package"
   },
   "dependencies": {},
   "overrides": {
