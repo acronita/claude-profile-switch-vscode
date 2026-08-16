@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+*.vsix
+.vscode-test/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local scratch (files staged for manual deletion)
+_to_delete/

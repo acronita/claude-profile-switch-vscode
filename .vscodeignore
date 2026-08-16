@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+.vscode-test.mjs
+.github/**
+src/**
+scripts/**
+out/test/**
+node_modules/**
+.gitignore
+.mocharc.json
+eslint.config.mjs
+tsconfig.json
+**/*.map
+**/*.ts
+package-lock.json

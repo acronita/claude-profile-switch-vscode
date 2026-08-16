@@ -1,0 +1,83 @@
+name: Release
+
+# Publishes a GitHub release when a v* tag is pushed.
+#
+# The VSIX attached to the release is built by this workflow from the tagged
+# commit, so anyone can re-run these exact steps and reproduce the artifact.
+# Nothing is uploaded from a developer machine.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build a release for (e.g. v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20.19.5"
+          cache: npm
+
+      - name: Install (locked, no scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Verify
+        # Supply-chain check, lint, type-check, unit tests, npm audit.
+        # A release is never cut from a tree that fails any of these.
+        run: npm run verify
+
+      - name: Resolve version
+        id: version
+        run: |
+          TAG="${{ inputs.tag || github.ref_name }}"
+          VERSION="${TAG#v}"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag $TAG does not match package.json version $PKG_VERSION"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Package VSIX
+        run: |
+          npm run package
+          mv claude-profile-switch.vsix "claude-profile-switch-${{ steps.version.outputs.version }}.vsix"
+
+      - name: Checksum
+        run: |
+          sha256sum "claude-profile-switch-${{ steps.version.outputs.version }}.vsix" \
+            > "claude-profile-switch-${{ steps.version.outputs.version }}.vsix.sha256"
+          cat "claude-profile-switch-${{ steps.version.outputs.version }}.vsix.sha256"
+
+      - name: Create release
+        # Uses the gh CLI preinstalled on the runner rather than a third-party
+        # action, so no external code touches the release process.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            "claude-profile-switch-${{ steps.version.outputs.version }}.vsix" \
+            "claude-profile-switch-${{ steps.version.outputs.version }}.vsix.sha256" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --notes-file CHANGELOG.md \
+            --verify-tag

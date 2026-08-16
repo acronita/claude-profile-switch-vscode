@@ -1,0 +1,259 @@
+{
+  "name": "claude-profile-switch",
+  "displayName": "Claude Profile Switch",
+  "description": "Switch between multiple Claude accounts used by the official Claude Code extension. Credentials are stored in the OS keychain, never in plaintext files. Zero runtime dependencies.",
+  "version": "0.1.0",
+  "publisher": "is-cout",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude code",
+    "account",
+    "profile",
+    "switcher"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/is-cout/claude-profile-switch-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/is-cout/claude-profile-switch-vscode/issues"
+  },
+  "icon": "resources/icon.png",
+  "galleryBanner": {
+    "color": "#1F1F1F",
+    "theme": "dark"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claudeProfileSwitch",
+          "title": "Claude Profiles",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "claudeProfileSwitch": [
+        {
+          "id": "claudeProfileSwitch.profiles",
+          "name": "Profiles",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "claudeProfileSwitch.profiles",
+        "contents": "No Claude profiles saved yet.\n\nLog in to Claude Code with one account, then save that login as a profile. Repeat for each account you want to switch between.\n\n[Save Current Login as Profile](command:claudeProfileSwitch.saveCurrentAsProfile)\n\n[Read the docs](https://github.com/is-cout/claude-profile-switch-vscode#readme)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "claudeProfileSwitch.saveCurrentAsProfile",
+        "title": "Save Current Login as Profile",
+        "category": "Claude Profiles",
+        "icon": "$(add)"
+      },
+      {
+        "command": "claudeProfileSwitch.switchProfile",
+        "title": "Switch Profile...",
+        "category": "Claude Profiles",
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "claudeProfileSwitch.switchToProfile",
+        "title": "Switch to This Profile",
+        "category": "Claude Profiles"
+      },
+      {
+        "command": "claudeProfileSwitch.updateProfileFromCurrent",
+        "title": "Update Profile from Current Login",
+        "category": "Claude Profiles",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "claudeProfileSwitch.renameProfile",
+        "title": "Rename Profile",
+        "category": "Claude Profiles",
+        "icon": "$(pencil)"
+      },
+      {
+        "command": "claudeProfileSwitch.deleteProfile",
+        "title": "Delete Profile",
+        "category": "Claude Profiles",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "claudeProfileSwitch.restoreLastSession",
+        "title": "Restore Login From Before Last Switch",
+        "category": "Claude Profiles"
+      },
+      {
+        "command": "claudeProfileSwitch.showStatus",
+        "title": "Show Current Login Status",
+        "category": "Claude Profiles",
+        "icon": "$(info)"
+      },
+      {
+        "command": "claudeProfileSwitch.refresh",
+        "title": "Refresh",
+        "category": "Claude Profiles",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "claudeProfileSwitch.saveCurrentAsProfile",
+          "when": "view == claudeProfileSwitch.profiles",
+          "group": "navigation@1"
+        },
+        {
+          "command": "claudeProfileSwitch.refresh",
+          "when": "view == claudeProfileSwitch.profiles",
+          "group": "navigation@2"
+        },
+        {
+          "command": "claudeProfileSwitch.showStatus",
+          "when": "view == claudeProfileSwitch.profiles",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "claudeProfileSwitch.updateProfileFromCurrent",
+          "when": "view == claudeProfileSwitch.profiles && viewItem == claudeProfile",
+          "group": "inline@1"
+        },
+        {
+          "command": "claudeProfileSwitch.renameProfile",
+          "when": "view == claudeProfileSwitch.profiles && viewItem == claudeProfile",
+          "group": "inline@2"
+        },
+        {
+          "command": "claudeProfileSwitch.deleteProfile",
+          "when": "view == claudeProfileSwitch.profiles && viewItem == claudeProfile",
+          "group": "inline@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "claudeProfileSwitch.switchToProfile",
+          "when": "false"
+        },
+        {
+          "command": "claudeProfileSwitch.updateProfileFromCurrent",
+          "when": "false"
+        },
+        {
+          "command": "claudeProfileSwitch.renameProfile",
+          "when": "false"
+        },
+        {
+          "command": "claudeProfileSwitch.deleteProfile",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Claude Profile Switch",
+      "properties": {
+        "claudeProfileSwitch.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the active Claude profile in the status bar."
+        },
+        "claudeProfileSwitch.reloadAfterSwitch": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "always",
+            "never"
+          ],
+          "default": "ask",
+          "enumDescriptions": [
+            "Ask before reloading the window after switching profiles.",
+            "Reload the window automatically after switching profiles.",
+            "Never reload; you reload manually so the Claude extension picks up the new login."
+          ],
+          "description": "The official Claude extension caches your login in memory, so a window reload is needed for a switch to fully take effect."
+        },
+        "claudeProfileSwitch.hardenFilePermissions": {
+          "type": "boolean",
+          "default": true,
+          "description": "After writing credentials, restrict the file to your Windows user account only (removes inherited ACL entries via icacls). Disable only if it conflicts with your environment."
+        },
+        "claudeProfileSwitch.identityKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "oauthAccount",
+            "userID",
+            "organizationUUID",
+            "primaryApiKey",
+            "primaryApiKeyEmail",
+            "customApiKeyResponses",
+            "hasCompletedOnboarding",
+            "hasAvailableSubscription",
+            "hasAvailableMaxSubscription",
+            "subscriptionNoticeCount",
+            "subscriptionUpsellShownCount"
+          ],
+          "description": "Top-level keys in .claude.json that identify the logged-in account. These are swapped along with the credentials file; every other key (project history, MCP servers, preferences) is left untouched."
+        },
+        "claudeProfileSwitch.configDirOverride": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to your Claude config directory. Leave empty to auto-detect (CLAUDE_CONFIG_DIR, then %USERPROFILE%\\.claude)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "clean": "node -e \"require('fs').rmSync('out',{recursive:true,force:true})\"",
+    "compile": "npm run check-types && npm run lint && tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "check-types": "tsc --noEmit -p ./",
+    "lint": "eslint src",
+    "test:unit": "npm run compile && mocha \"out/test/unit/**/*.test.js\"",
+    "test:integration": "npm run compile && vscode-test",
+    "test": "npm run test:unit",
+    "audit": "npm audit --audit-level=low",
+    "verify:no-runtime-deps": "node scripts/verify-no-runtime-deps.js",
+    "verify": "npm run verify:no-runtime-deps && npm run lint && npm run check-types && npm run test:unit && npm run audit",
+    "package": "npm run verify:no-runtime-deps && vsce package --out claude-profile-switch.vsix"
+  },
+  "dependencies": {},
+  "overrides": {
+    "diff": "8.0.4",
+    "serialize-javascript": "7.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/mocha": "10.0.10",
+    "@types/node": "20.19.43",
+    "@types/vscode": "1.100.0",
+    "@vscode/test-cli": "0.0.15",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "3.9.2",
+    "eslint": "9.39.5",
+    "mocha": "11.8.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0"
+  }
+}

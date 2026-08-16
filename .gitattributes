@@ -1,0 +1,10 @@
+# Normalise line endings so a Windows checkout does not churn the whole tree.
+* text=auto eol=lf
+
+# Binary assets: never touch these.
+*.png binary
+*.vsix binary
+*.zip binary
+
+# Keep generated lockfiles out of diffs by default.
+package-lock.json linguist-generated=true -diff
